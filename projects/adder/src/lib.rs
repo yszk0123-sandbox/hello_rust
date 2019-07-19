@@ -60,5 +60,9 @@ impl Rectangle {
 }
 
 pub fn add_one(a: i32) -> i32 {
-    a + 1
+    internal_adder(a, 1)
+}
+
+fn internal_adder(a: i32, b: i32) -> i32 {
+    a + b
 }
