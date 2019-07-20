@@ -1,7 +1,6 @@
 use std::env;
 use std::error::Error;
-use std::fs::File;
-use std::io::prelude::*;
+use std::fs;
 use std::process;
 
 fn main() {
@@ -18,11 +17,8 @@ fn main() {
     run(config);
 }
 
-fn run(config: Config) -> Result<(), Box<Error>> {
-    let mut f = File::open(config.filename)?;
-
-    let mut contents = String::new();
-    f.read_to_string(&mut contents)?;
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.filename)?;
 
     println!("With text:\n{}", contents);
 
