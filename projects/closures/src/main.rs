@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 
@@ -6,7 +7,7 @@ where
     T: Fn(u32) -> u32,
 {
     calculation: T,
-    value: Option<u32>,
+    value: HashMap<u32, u32>,
 }
 
 impl<T> Cacher<T>
@@ -16,16 +17,19 @@ where
     fn new(calculation: T) -> Cacher<T> {
         Cacher {
             calculation,
-            value: None,
+            value: HashMap::new(),
         }
     }
 
     fn value(&mut self, arg: u32) -> u32 {
-        self.value.unwrap_or_else(|| {
-            let v = (self.calculation)(arg);
-            self.value = Some(v);
-            v
-        })
+        match self.value.get(&arg) {
+            Some(v) => *v,
+            None => {
+                let v = (self.calculation)(arg);
+                self.value.insert(arg, v);
+                v
+            }
+        }
     }
 }
 
@@ -57,5 +61,18 @@ fn generate_workout(intensity: u32, random_number: u32) {
                 expensive_closure.value(intensity)
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn call_with_different_values() {
+        let mut cacher = Cacher::new(|v| v);
+
+        assert_eq!(1, cacher.value(1));
+        assert_eq!(2, cacher.value(2));
     }
 }
